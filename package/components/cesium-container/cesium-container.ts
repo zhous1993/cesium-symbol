@@ -1,11 +1,11 @@
 import { App } from 'vue';
 
-import CesiumContainer from './CesiumContainer.vue';
+import ZCesium from './ZCesium.vue';
 
-CesiumContainer.install = (app: App) => {
+ZCesium.install = (app: App) => {
   // 组件注册，按需引入
-  app.component('HelloWorld', CesiumContainer);
+  app.component('z-cesium', ZCesium);
   return app;
 };
 
-export default CesiumContainer;
+export default ZCesium;

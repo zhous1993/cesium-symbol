@@ -596,3 +596,22 @@ export function bindAll (fns, context) {
     context[fn] = context[fn].bind(context)
   })
 }
+export function getCatesian3FromPX(px, viewer) {
+  var picks = viewer.scene.drillPick(px);
+  // viewer.render();
+  var cartesian;
+  var isOn3dtiles = true;
+  for (var i = 0; i < picks.length; i++) {
+    if ((picks[i] && picks[i].primitive) || picks[i] instanceof Cesium.Cesium3DTileFeature) { //模型上拾取
+      isOn3dtiles = true;
+    }
+  }
+  if (isOn3dtiles) {
+    cartesian = viewer.scene.pickPosition(px);
+  } else {
+    var ray = viewer.camera.getPickRay(px);
+    if (!ray) return null;
+    cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+  }
+  return cartesian;
+}

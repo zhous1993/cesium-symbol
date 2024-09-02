@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { onMounted, shallowRef, ref, reactive } from 'vue';
 import * as Cesium from 'cesium'
 import { Viewer } from 'cesium'
@@ -14,10 +15,13 @@ import { createPolygon, movePolygon, endPolygon, initPolygon } from './units/dra
 import { createCircle, moveCircle, initCircle } from './units/drawCircleFun'
 import { createPincerArrow, movePincerArrow, endPincerArrow, initPincerArrow } from './units/drawPincerArrowFun'
 import { createStraightLineArrow, moveStraightLineArrow, endStraightLineArrow, initStraightLineArrow } from './units/drawStraightLineArrowFun'
-
+import {StraightArrow,AttackArrow, PincerArrow} from './units/arrowClass'
+import { useDragEntity } from './hooks/useDragEntity';
+import {getCatesian3FromPX} from './units/thirdPart/utils'
 // const viewerDivRef:any = ref<HTMLDivElement>()
 const dialogRef = ref<HTMLDivElement>()
 const viewerRef = shallowRef<Viewer>()
+const nowArrowObj = ref()
 let mouseInfo = reactive({
   lon: '',
   lat: ''
@@ -26,6 +30,58 @@ let drawList = reactive({
   list: [] as any
 })
 let type = ref<string | null>(null); // 当前在绘画的类型，绘画完成重置为null
+ const  bindEdit = ()=>{
+    const handler = new Cesium.ScreenSpaceEventHandler(viewerRef.value?.scene.canvas);
+    handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent)=> { //单机开始绘制
+      var pick = viewerRef.value?.scene.pick(evt.position);
+      if (Cesium.defined(pick) && pick.id) {
+        // if (nowArrowObj.value) {
+        //   if (nowArrowObj.value.state != -1) {
+        //     console.log("上一步操作未结束，请继续完成上一步！");  
+        //     return;
+        //   }
+        // }
+
+        for (var i = 0; i < drawList.list.length; i++) {
+          if (pick.id.objId&&pick.id.objId == drawList.list[i].objId) {
+            nowArrowObj.value = drawList.list[i];
+            drawList.list[i].startModify();
+            break;
+          } else if(pick.id.id == drawList.list[i].id) {
+            nowArrowObj.value = drawList.list[i];
+            if(viewerRef.value) {
+              viewerRef.value.scene.screenSpaceCameraController.enableRotate = false;
+              viewerRef.value.scene.screenSpaceCameraController.enableZoom = false;
+              viewerRef.value.scene.screenSpaceCameraController.enableTranslate = false;
+              viewerRef.value.scene.screenSpaceCameraController.enableTilt = false;
+              viewerRef.value.scene.screenSpaceCameraController.enableLook = false;
+            }
+            let isDraging = true
+            handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+            let pickPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
+            if (isDraging && Cesium.defined(pickPosition)) {
+                nowArrowObj.value.entity.position = pickPosition
+            }
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+        handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+            isDraging = false
+            if(viewerRef.value) {
+              viewerRef.value.scene.screenSpaceCameraController.enableRotate = true;
+              viewerRef.value.scene.screenSpaceCameraController.enableZoom = true;
+              viewerRef.value.scene.screenSpaceCameraController.enableTranslate = true;
+              viewerRef.value.scene.screenSpaceCameraController.enableTilt = true;
+              viewerRef.value.scene.screenSpaceCameraController.enableLook = true;
+            }
+            handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+            handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP)
+
+        }, Cesium.ScreenSpaceEventType.LEFT_UP)
+            break
+          }
+        }
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  }
 onMounted(async () => {
   viewerRef.value = new Cesium.Viewer('cesiumContainer', {
     infoBox: false, // 禁用沙箱，解决控制台报错
@@ -90,8 +146,9 @@ onMounted(async () => {
           moveStraightLineArrow(viewerRef, movement)
         break;
         case 'PincerArrow':
-          movePincerArrow(viewerRef, movement)
+          
         break;
+       
       }
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
@@ -129,13 +186,14 @@ onMounted(async () => {
           drawList.list.push(straightLineArrow)
         break;
         case 'PincerArrow':
-          const pincerArrow = endPincerArrow(viewerRef);
-          drawList.list.push(pincerArrow)
+          
         break;
+       
       }
     }
     type.value = null
   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK)
+  bindEdit()
 })
 const isSelected = ref<Boolean>(false);
 // 选择类型
@@ -164,13 +222,33 @@ function selectType(icon:ICONTYPE) {
       initStraightLineArrow(viewerRef)
     break;
     case 'PincerArrow':
-      initPincerArrow(viewerRef)
+      const pincerArrow = new PincerArrow(viewerRef.value)
+      pincerArrow.disable()
+      pincerArrow.startDraw();
+      pincerArrow.entity = pincerArrow.arrowEntity
+      drawList.list.push(pincerArrow)
     break;
+    case 'AttackArrow':
+    const attackArrow = new StraightArrow(viewerRef.value)
+      attackArrow.disable()
+      attackArrow.startDraw();
+      attackArrow.entity = attackArrow.arrowEntity
+      drawList.list.push(attackArrow)
+      break
+    case 'SwallowtailArrow':
+      const swallowtailArrow = new AttackArrow(viewerRef.value)
+      swallowtailArrow.disable()
+      swallowtailArrow.startDraw()
+      swallowtailArrow.entity = swallowtailArrow.arrowEntity
+      drawList.list.push(swallowtailArrow)
+
+      break
   }
   // 监听地图点击事件
   viewerRef.value?.screenSpaceEventHandler.setInputAction((click: Cesium.ScreenSpaceEventHandler.PositionedEvent) =>{
     switch (icon.type) {
       case 'Icon':
+      if(!isSelected.value) return
         createPoint(dialogRef, viewerRef, click, icon);
         break;
       case 'Polyline':
@@ -195,33 +273,57 @@ function selectType(icon:ICONTYPE) {
         createStraightLineArrow(viewerRef, click, false);
       break;
       case 'PincerArrow':
-        createPincerArrow(viewerRef, click)
       break;
+      case 'AttackArrow':
+      
+        break
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 }
 // 创建线段
 // function createPolyline(icon:ICONTYPE) {
-//   console.log('--------------------')
 //   useDrawPolyline(viewerRef)
 // }
 
 // 打点
 function drawPoint(icon:ICONTYPE) {
-  const id = useDrawPoint(viewerRef, icon)
+  const entity = useDrawPoint(viewerRef, icon)
   const obj = {
     ...icon,
-    id: id
+    id: entity.id,
+    entity
   }
   drawList.list.push(obj)
+  isSelected.value = false
 }
-
+const handleToggle = (item: any) => {
+  if(item.toggle) {
+    item.toggle()
+  }
+   else if(item.id) {
+    const entity = viewerRef.value?.entities.getById(item?.id as string) as Cesium.Entity
+    entity.show = !entity.show
+  }
+  
+ 
+}
+const handleDelete = (item: any) => {
+  if(item.clear){
+    item.clear()
+    drawList.list = drawList.list.filter((data:any) => data.objId !== item.objId)
+  } else if(item.entity) {
+    item.entity && viewerRef.value?.entities.remove(item.entity)
+  // viewerRef.value?.dataSources.removeAll()
+  drawList.list = drawList.list.filter((data:ICONTYPE) => data.id !== item.id)
+  }
+  
+}
 </script>
 
 <template>
   <div class="cesium-container">
     <div id="cesiumContainer" :class="{'cursor': isSelected}" ref="viewerDivRef" style="width: 100%; height: 100vh;"></div>
-    <SelectType class="select-type" @selectType="selectType"></SelectType>
+    <SelectType class="select-type" @selectType="selectType" :drawList="drawList.list" @toggle="handleToggle" @delete="handleDelete"></SelectType>
     <Dialog ref="dialogRef" @drawPoint="drawPoint"></Dialog>
     <div class="fotter">
       经度：{{ mouseInfo.lon }}&nbsp;&nbsp;

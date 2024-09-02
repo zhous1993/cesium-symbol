@@ -8,6 +8,7 @@ let formState = reactive<ICONTYPE>({
   lat: '', // 纬度
   lon: '', // 经度
   remark: '', // 说明
+  size: 1,// 比例
 });
 const open = ref<boolean>(false);
 function assignmentIcon(icon:ICONTYPE) {
@@ -29,7 +30,7 @@ defineExpose({
 </script>
 
 <template>
-  <a-modal v-model:open="open" :closable="false" title="" @ok="handleOk">
+  <a-modal v-model:open="open" :closable="false" title="" @ok="handleOk" :maskClosable="false" :okText="'确认'" :cancelText="'取消'">
     <a-form
       :model="formState"
       name="basic"
@@ -37,6 +38,12 @@ defineExpose({
       :wrapper-col="{ span: 18 }"
       autocomplete="off"
     >
+    <a-form-item
+        label="比例"
+        name="lon"
+      >
+        <a-input type="number" :min="1" :max="10" v-model:value="formState.size" />
+      </a-form-item>
       <a-form-item
         label="经度"
         name="lon"

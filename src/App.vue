@@ -4,7 +4,7 @@ import CesiumContainer from '../package/components/cesium-container/CesiumContai
 
 <template>
   <div>
-    <CesiumContainer msg="Vite + Vue" />
+     <CesiumContainer />
   </div>
 </template>
 

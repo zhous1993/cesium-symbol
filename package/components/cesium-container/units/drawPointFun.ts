@@ -1,23 +1,23 @@
 import { Ref } from "vue";
 import * as Cesium from 'cesium'
 import { ICONTYPE } from '../type'
-export function useDrawPoint(viewer: Ref<Cesium.Viewer | undefined>, data: ICONTYPE) {
+export function useDrawPoint(viewer: Ref<Cesium.Viewer | undefined>, data: ICONTYPE): Cesium.Entity {
     const dataSource1 = new Cesium.CustomDataSource("dataSource1");
     let dataSourcePromise = null;
     const img_path = new URL(`../icon/${data.iconUrl}`, import.meta.url).href;
-    const lon = data.lon ?  Number(data.lon) : 0;
-    const lat = data.lat ?  Number(data.lat) : 0;
-    dataSource1.entities.add(new Cesium.Entity({
+    const lon = data.lon ? Number(data.lon) : 0;
+    const lat = data.lat ? Number(data.lat) : 0;
+    const pointEntity = viewer.value?.entities.add(new Cesium.Entity({
         position: Cesium.Cartesian3.fromDegrees(lon, lat),
         billboard: {
             image: img_path,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            scale: 1,   // 标注点icon缩放比例
+            scale: Number(data.size) || 1,   // 标注点icon缩放比例
         },
         label: {
             show: true, //是否显示标注点文本
-            scale: 0.6, 
+            scale: 0.6,
             font: "normal 900 24px MicroSoft YaHei", //字体
             fillColor: Cesium.Color.fromCssColorString("#3976bd"),  //字体颜色
             text: data.remark, //从接口获取点的标记文本
@@ -55,5 +55,6 @@ export function useDrawPoint(viewer: Ref<Cesium.Viewer | undefined>, data: ICONT
             }
         })
     })
-    return Symbol()
+    console.log(pointEntity)
+    return pointEntity as Cesium.Entity
 }

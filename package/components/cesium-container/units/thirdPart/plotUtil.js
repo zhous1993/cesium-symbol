@@ -1,4 +1,4 @@
-window.P = {version: "1.0.0"}
+var P = {version: "1.0.0"}
 P.PlotUtils = {}, P.PlotUtils.distance = function(t, o) {
 	return Math.sqrt(Math.pow(t[0] - o[0], 2) + Math.pow(t[1] - o[1], 2))
 }, P.PlotUtils.wholeDistance = function(t) {
@@ -164,7 +164,7 @@ P.PlotUtils = {}, P.PlotUtils.distance = function(t, o) {
 }, P.PlotUtils.getBezierPoints = function(t) {
 	if (t.length <= 2) return t;
 	for (var o = [], e = t.length - 1, r = 0; 1 >= r; r += .01) {
-		for (var n = y = 0, g = 0; e >= g; g++) {
+		for (var n =0, y = 0, g = 0; e >= g; g++) {
 			var i = P.PlotUtils.getBinomialFactor(e, g),
 				s = Math.pow(r, g),
 				a = Math.pow(1 - r, e - g);
@@ -190,7 +190,7 @@ P.PlotUtils = {}, P.PlotUtils.distance = function(t, o) {
 		r = t.length - o - 1;
 	e.push(t[0]);
 	for (var n = 0; r >= n; n++) for (var g = 0; 1 >= g; g += .05) {
-		for (var i = y = 0, s = 0; o >= s; s++) {
+		for (var i =  0, y = 0, s = 0; o >= s; s++) {
 			var a = P.PlotUtils.getQuadricBSplineFactor(s, g);
 			i += a * t[n + s][0], y += a * t[n + s][1]
 		}
@@ -205,3 +205,5 @@ P.PlotUtils = {}, P.PlotUtils.distance = function(t, o) {
 	FITTING_COUNT: 100,
 	ZERO_TOLERANCE: 1e-4
 }
+
+export {P}

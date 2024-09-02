@@ -1,4 +1,7 @@
-window.xp = {
+
+import * as Cesium from 'cesium'
+import {P} from './plotUtil'
+var xp = {
     version: "1.1.0",
     createTime: "2021.6.19",
     author: "wjl"
@@ -306,7 +309,7 @@ xp.algorithm.fineArrow = function (tailPoint, headerPoint) {
     var o = [];
     o[0] = tailPoint;
     o[1] = headerPoint;
-    e = o[0],
+   var e = o[0],
     r = o[1],
     n = P.PlotUtils.getBaseLength(o),
     g = n * tailWidthFactor,
@@ -325,3 +328,4 @@ xp.algorithm.fineArrow = function (tailPoint, headerPoint) {
     d.push(a[0], a[1], p[0], p[1], u[0], u[1], r[0], r[1], c[0], c[1], h[0], h[1], l[0], l[1], e[0], e[1]);
     return Cesium.Cartesian3.fromDegreesArray(d);
 }
+export {xp}

@@ -2,6 +2,8 @@
 import { Flex, Row , Col } from 'ant-design-vue';
 import { Directive, reactive, ref, defineEmits } from 'vue'
 import { ICONTYPE } from './type'
+const props = defineProps<{drawList: any[]}>()
+console.log(props)
 const vMove: Directive<any, void> = (el: HTMLElement) => {
   // let moveElement = el.firstElementChild as HTMLElement
   function mouseDown(e: MouseEvent) {
@@ -59,7 +61,9 @@ listData.list = iconList
 
 function clickType(item: Number): void {
   type.value = item;
-  if (item === 3) {
+  if(item === 4) {
+    console.log(props.drawList)
+  } else if (item === 3) {
     let arr:ICONTYPE[] = [
       {
         iconUrl: 'polyline.png',
@@ -110,6 +114,11 @@ function clickType(item: Number): void {
         iconUrl: 'eMap-plot28.png',
         text: '单曲箭头',
         type: 'CurveLineArrow'
+      },
+      {
+        iconUrl: 'eMap-plot31.png',
+        text: '突击方向',
+        type: 'AttackArrow'
       }
     ]
     listData.list = arr
@@ -121,7 +130,7 @@ function clickType(item: Number): void {
 function loadImg(url: string | undefined) {
   return new URL(`./icon/${url}`, import.meta.url).href
 }
-defineEmits(['selectType'])
+defineEmits(['selectType', 'toggle', 'delete'])
 </script>
 
 <template>
@@ -135,13 +144,21 @@ defineEmits(['selectType'])
     <div class="select-type_content">
       <template v-if="type !== 4">
         <a-row :gutter="[16, 24]">
-          <a-col class="icon-item" :span="8" v-for="item in listData.list" :key="item.iconUrl" @click.stop="$emit('selectType', item)">
+          <a-col class="icon-item" :span="8" v-for="item in listData.list" :key="item.iconUrl" @click..prevent="$emit('selectType', item)">
             <img :src="loadImg(item.iconUrl)">
             <div>{{ item.text }}</div>
           </a-col>
         </a-row>
       </template>
-      <template v-else></template>
+      <template v-else>
+        <a-row v-for="(item, index) in props.drawList" :key="item.id">
+          <a-col>
+            <a-button type="link" @click.stop="$emit('toggle', item)">{{ item.entity && !item?.entity.show ?  '显示' : '隐藏'}}</a-button>
+            <span>符号--{{ index+1 }}</span>
+            <a-button  type="link" @click.stop="$emit('delete', item)">删除</a-button>
+          </a-col>
+        </a-row>
+      </template>
     </div>
   </div>
 </template>
