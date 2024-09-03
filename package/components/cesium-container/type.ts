@@ -1,4 +1,4 @@
-import { Entity, ScreenSpaceEventHandler } from "cesium";
+import { Entity as CesiumEntity, ScreenSpaceEventHandler } from "cesium";
 
 // 定义图标
 export interface ICONTYPE {
@@ -36,4 +36,10 @@ export interface Graphics {
     calcMouseMove?(movement: ScreenSpaceEventHandler.MotionEvent): void
 
     calcRotatePosition(angle: any, currentMousePosition: any): void
+}
+
+export type Entity = CesiumEntity & {
+    type?: string
+    attr?: string
+    objId?: string
 }

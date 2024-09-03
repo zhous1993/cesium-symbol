@@ -11,7 +11,8 @@
   "dependencies": {
     "ant-design-vue": "^4.2.3",
     "cesium": "^1.119.0",
-    "vue": "^3.4.29"
+    "vue": "^3.4.29",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

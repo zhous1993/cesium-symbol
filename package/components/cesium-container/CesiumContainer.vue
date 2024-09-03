@@ -15,9 +15,10 @@ import { createPolygon, movePolygon, endPolygon, initPolygon } from './units/dra
 import { createCircle, moveCircle, initCircle } from './units/drawCircleFun'
 import { createPincerArrow, movePincerArrow, endPincerArrow, initPincerArrow } from './units/drawPincerArrowFun'
 import { createStraightLineArrow, moveStraightLineArrow, endStraightLineArrow, initStraightLineArrow } from './units/drawStraightLineArrowFun'
-import {StraightArrow,AttackArrow, PincerArrow} from './units/arrowClass'
+import {AttackArrow, PincerArrow} from './units/arrowClass'
 import { useDragEntity } from './hooks/useDragEntity';
 import {getCatesian3FromPX} from './units/thirdPart/utils'
+import { StraightArrow } from './units/straightArrow';
 // const viewerDivRef:any = ref<HTMLDivElement>()
 const dialogRef = ref<HTMLDivElement>()
 const viewerRef = shallowRef<Viewer>()
@@ -48,39 +49,39 @@ let type = ref<string | null>(null); // 当前在绘画的类型，绘画完成�
             drawList.list[i].startModify();
             break;
           } else if(pick.id.id == drawList.list[i].id) {
-            nowArrowObj.value = drawList.list[i];
-            if(viewerRef.value) {
-              viewerRef.value.scene.screenSpaceCameraController.enableRotate = false;
-              viewerRef.value.scene.screenSpaceCameraController.enableZoom = false;
-              viewerRef.value.scene.screenSpaceCameraController.enableTranslate = false;
-              viewerRef.value.scene.screenSpaceCameraController.enableTilt = false;
-              viewerRef.value.scene.screenSpaceCameraController.enableLook = false;
-            }
-            let isDraging = true
-            handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
-            let pickPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
-            if (isDraging && Cesium.defined(pickPosition)) {
-                nowArrowObj.value.entity.position = pickPosition
-            }
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-        handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-            isDraging = false
-            if(viewerRef.value) {
-              viewerRef.value.scene.screenSpaceCameraController.enableRotate = true;
-              viewerRef.value.scene.screenSpaceCameraController.enableZoom = true;
-              viewerRef.value.scene.screenSpaceCameraController.enableTranslate = true;
-              viewerRef.value.scene.screenSpaceCameraController.enableTilt = true;
-              viewerRef.value.scene.screenSpaceCameraController.enableLook = true;
-            }
-            handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-            handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP)
+        //     nowArrowObj.value = drawList.list[i];
+        //     if(viewerRef.value) {
+        //       viewerRef.value.scene.screenSpaceCameraController.enableRotate = false;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableZoom = false;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableTranslate = false;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableTilt = false;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableLook = false;
+        //     }
+        //     let isDraging = true
+        //     handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+        //     let pickPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
+        //     if (isDraging && Cesium.defined(pickPosition)) {
+        //         nowArrowObj.value.entity.position = pickPosition
+        //     }
+        // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+        // handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+        //     isDraging = false
+        //     if(viewerRef.value) {
+        //       viewerRef.value.scene.screenSpaceCameraController.enableRotate = true;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableZoom = true;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableTranslate = true;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableTilt = true;
+        //       viewerRef.value.scene.screenSpaceCameraController.enableLook = true;
+        //     }
+        //     handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+        //     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP)
 
-        }, Cesium.ScreenSpaceEventType.LEFT_UP)
-            break
+        // }, Cesium.ScreenSpaceEventType.LEFT_UP)
+        //     break
           }
         }
       }
-    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 onMounted(async () => {
   viewerRef.value = new Cesium.Viewer('cesiumContainer', {
