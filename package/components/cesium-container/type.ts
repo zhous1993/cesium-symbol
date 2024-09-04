@@ -11,6 +11,7 @@ export interface ICONTYPE {
     type?: string;
     entity?: Entity;
     size?: number;
+    category: 'polygon' | 'point' | 'polyline'
 }
 export type Point = {
     lat: string,
@@ -37,9 +38,33 @@ export interface Graphics {
 
     calcRotatePosition(angle: any, currentMousePosition: any): void
 }
+export type PointEditConfig = {
+    iconUrl: string
+    size?: number
+    opacity?: number
+    remark?: string
+}
+export type PolygonEditConfig = {
 
+    borderWidth?: number
+    borderColor?: string
+    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'dot-dash'
+    fillColor?: string
+    opacity?: number
+    remark?: string
+}
+export type PolylineEditConfig = {
+    width?: number
+    color?: string
+    style?: 'solid' | 'dashed' | 'dotted' | 'dot-dash'
+    opacity?: number
+    remark?: string
+}
 export type Entity = CesiumEntity & {
     type?: string
     attr?: string
     objId?: string
+    editConfig?: PointEditConfig | PolygonEditConfig | PolylineEditConfig
 }
+
+export type LngLat = [number, number]

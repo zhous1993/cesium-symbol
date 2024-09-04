@@ -1,25 +1,11 @@
 <script setup lang="ts">
-import { Flex, Row , Col } from 'ant-design-vue';
-import { Directive, reactive, ref, defineEmits } from 'vue'
+import {ElRow,ElCol, ElButton} from 'element-plus'
+import {  reactive, ref, defineEmits } from 'vue'
 import { ICONTYPE } from './type'
+import vMove from './hooks/mouseMove.directive';
 const props = defineProps<{drawList: any[]}>()
 console.log(props)
-const vMove: Directive<any, void> = (el: HTMLElement) => {
-  // let moveElement = el.firstElementChild as HTMLElement
-  function mouseDown(e: MouseEvent) {
-    let X = e.clientX - el.offsetLeft
-    let Y = e.clientY - el.offsetTop
-    function mouseMove(e: MouseEvent) {
-      el.style.left = e.clientX - X + 'px'
-      el.style.top = e.clientY - Y + 'px'
-    }
-    document.addEventListener('mousemove', mouseMove)
-    document.addEventListener('mouseup', () => {
-      document.removeEventListener('mousemove', mouseMove)
-    })
-  }
-  el.addEventListener('mousedown', mouseDown)
-}
+
 let type = ref<Number>(1)
 
 let listData = reactive<{
@@ -28,34 +14,41 @@ let listData = reactive<{
   list: []
 })
 
-const iconList = [{
+const iconList:ICONTYPE[] = [{
   iconUrl: 'icon1.svg',
   text: '图标1',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon2.svg',
   text: '图标2',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon3.svg',
   text: '图标3',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon4.svg',
   text: '图标4',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon5.svg',
   text: '图标5',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon6.svg',
   text: '图标6',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 },{
   iconUrl: 'icon7.svg',
   text: '图标7',
-  type: 'Icon'
+  type: 'Icon',
+        category: 'point'
 }]
 listData.list = iconList
 
@@ -68,57 +61,69 @@ function clickType(item: Number): void {
       {
         iconUrl: 'polyline.png',
         text: '折线',
-        type: 'Polyline'
+        type: 'Polyline',
+        category: 'polyline'
       },
       {
         iconUrl: 'arc.png',
         text: '曲线',
-        type: 'Curve'
+        type: 'Curve',
+        category: 'polyline'
       },
       {
         iconUrl: 'free-line.png',
         text: '自由曲线',
-        type: 'Freeline'
+        type: 'Freeline',
+        category: 'polyline'
       },
       {
         iconUrl: 'eMap-plot17.png',
         text: '多边形',
-        type: 'Polygon'
+        type: 'Polygon',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot18.png',
         text: '圆',
-        type: 'Circle'
+        type: 'Circle',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot21.png',
         text: '扇形',
-        type: 'Sector'
+        type: 'Sector',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot24.png',
         text: '双箭头',
-        type: 'PincerArrow'
+        type: 'PincerArrow',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot25.png',
         text: '燕尾箭头',
-        type: 'SwallowtailArrow'
+        type: 'SwallowtailArrow',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot27.png',
         text: '细直箭头',
-        type: 'StraightLineArrow'
+        type: 'StraightLineArrow',
+        category: 'polygon'
       },
       {
         iconUrl: 'eMap-plot28.png',
         text: '单曲箭头',
-        type: 'CurveLineArrow'
+        type: 'CurveLineArrow',
+        category: 'polygon'
+
       },
       {
         iconUrl: 'eMap-plot31.png',
         text: '突击方向',
-        type: 'AttackArrow'
+        type: 'StraightArrow',
+        category: 'polygon'
       }
     ]
     listData.list = arr
@@ -135,29 +140,33 @@ defineEmits(['selectType', 'toggle', 'delete'])
 
 <template>
   <div class="select-type" v-move>
-    <a-flex class="select-type_left" vertical justify="space-around" align="center">
+    <div class="select-type_left" >
       <div :class="{'selected': type === 1}" @click.stop="clickType(1)">常用标绘</div>
       <div :class="{'selected': type === 2}" @click.stop="clickType(2)">应急标绘符号</div>
       <div :class="{'selected': type === 3}" @click.stop="clickType(3)">标绘工具箱</div>
       <div :class="{'selected': type === 4}" @click.stop="clickType(4)">管理标绘</div>
-    </a-flex>
+    </div>
     <div class="select-type_content">
       <template v-if="type !== 4">
-        <a-row :gutter="[16, 24]">
-          <a-col class="icon-item" :span="8" v-for="item in listData.list" :key="item.iconUrl" @click..prevent="$emit('selectType', item)">
+        <el-row :gutter="16" justify="start" align="middle">
+          <el-col class="icon-item" :span="8" v-for="item in listData.list" :key="item.iconUrl" @click..prevent="$emit('selectType', item)">
             <img :src="loadImg(item.iconUrl)">
             <div>{{ item.text }}</div>
-          </a-col>
-        </a-row>
+          </el-col>
+        </el-row>
       </template>
       <template v-else>
-        <a-row v-for="(item, index) in props.drawList" :key="item.id">
-          <a-col>
-            <a-button type="link" @click.stop="$emit('toggle', item)">{{ item.entity && !item?.entity.show ?  '显示' : '隐藏'}}</a-button>
-            <span>符号--{{ index+1 }}</span>
-            <a-button  type="link" @click.stop="$emit('delete', item)">删除</a-button>
-          </a-col>
-        </a-row>
+        <el-row v-for="(item, index) in props.drawList" :key="item.id">
+          <el-col :span="8">
+            <el-button text type="primary" @click.stop="$emit('toggle', item)">{{ item.entity && !item?.entity.show ?  '显示' : '隐藏'}}</el-button>
+          </el-col>
+
+          <el-col :span="8"><span>符号--{{ index+1 }}</span></el-col>
+            <el-col :span="8">
+              <el-button text  type="danger" @click.stop="$emit('delete', item)">删除</el-button>
+
+            </el-col>
+        </el-row>
       </template>
     </div>
   </div>
@@ -166,15 +175,17 @@ defineEmits(['selectType', 'toggle', 'delete'])
 <style scoped>
 .select-type {
   background-color: #fff;
-  width: 300px;
+  width: 320px;
   height: 500px;
   border-radius: 20px;
   border: 1px solid #dedede;
   display: flex;
+  overflow: hidden;
 }
 .select-type_left{
   width: 40px;
   height: 100%;
+  overflow: hidden;
 }
 .select-type_left div{
   cursor: pointer;

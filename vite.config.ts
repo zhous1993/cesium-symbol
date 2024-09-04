@@ -3,9 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import path, { resolve } from 'path'
 import dts from 'vite-plugin-dts'
 import cesium from 'vite-plugin-cesium'
-import Components from 'unplugin-vue-components/vite'
-import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
-
+import ElementPlus from 'unplugin-element-plus/vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -16,13 +14,7 @@ export default defineConfig({
       cleanVueFileName: true,
       include: ['package/**/*']
     }),
-    Components({
-      resolvers: [
-        AntDesignVueResolver({
-          importStyle: false, // css in js
-        }),
-      ],
-    })
+    ElementPlus({})
   ],
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.vue'],

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import CesiumContainer from '../package/components/cesium-container/CesiumContainer.vue'
+import ZCesiumContainer from '../package/components/cesium-container/ZCesiumContainer.vue';
 </script>
 
 <template>
   <div>
-     <CesiumContainer />
+     <!-- <CesiumContainer /> -->
+      <ZCesiumContainer />
   </div>
 </template>
 

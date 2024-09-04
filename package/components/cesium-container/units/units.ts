@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium'
+import { LngLat } from '../type';
 /***
  * 坐标转换 84转笛卡尔
  * @param {Object} {lng,lat,alt} 地理坐标
@@ -93,4 +94,76 @@ export const Mid = (point1: [number, number], point2: [number, number]): [number
 export const enableCamera = (viewer: Cesium.Viewer, enable: boolean) => {
     if (!viewer) return
     viewer.scene.screenSpaceCameraController.enableRotate = enable
+}
+
+/**
+ * 计算两个坐标之间的距离
+ * @param pnt1
+ * @param pnt2
+ * @returns {number}
+ * @constructor
+ */
+export const MathDistance = (pnt1: LngLat, pnt2: LngLat): number => {
+    return (Math.sqrt(Math.pow((pnt1[0] - pnt2[0]), 2) + Math.pow((pnt1[1] - pnt2[1]), 2)))
+}
+
+/**
+ * 获取方位角（地平经度）
+ * @param startPoint
+ * @param endPoint
+ * @returns {*}
+ */
+export const getAzimuth = (startPoint: LngLat, endPoint: LngLat): number => {
+    let azimuth
+    let angle = Math.asin(Math.abs(endPoint[1] - startPoint[1]) / (MathDistance(startPoint, endPoint)))
+    if (endPoint[1] >= startPoint[1] && endPoint[0] >= startPoint[0]) {
+        azimuth = angle + Math.PI
+    } else if (endPoint[1] >= startPoint[1] && endPoint[0] < startPoint[0]) {
+        azimuth = Math.PI * 2 - angle
+    } else if (endPoint[1] < startPoint[1] && endPoint[0] < startPoint[0]) {
+        azimuth = angle
+    } else if (endPoint[1] < startPoint[1] && endPoint[0] >= startPoint[0]) {
+        azimuth = Math.PI - angle
+    }
+    return azimuth as number
+}
+
+/**
+ * 通过三个点获取方位角
+ * @param pntA: LngLat
+ * @param pntB:LngLat
+ * @param pntC:LngLat
+ * @returns {number}
+ */
+export const getAngleOfThreePoints = (pntA: LngLat, pntB: LngLat, pntC: LngLat): number => {
+    const angle = getAzimuth(pntB, pntA) - getAzimuth(pntB, pntC)
+    return ((angle < 0) ? (angle + Math.PI * 2) : angle)
+}
+
+/**
+ * 判断是否是顺时针
+ * @param pnt1
+ * @param pnt2
+ * @param pnt3
+ * @returns {boolean}
+ */
+export const isClockWise = (pnt1: LngLat, pnt2: LngLat, pnt3: LngLat): boolean => {
+    return ((pnt3[1] - pnt1[1]) * (pnt2[0] - pnt1[0]) > (pnt2[1] - pnt1[1]) * (pnt3[0] - pnt1[0]))
+}
+
+/**
+ * 根据起止点和旋转方向求取第三个点
+ * @param startPnt
+ * @param endPnt
+ * @param angle
+ * @param distance
+ * @param clockWise
+ * @returns {[*,*]}
+ */
+export const getThirdPoint = (startPnt: LngLat, endPnt: LngLat, angle: number, distance: number, clockWise: boolean): LngLat => {
+    let azimuth = getAzimuth(startPnt, endPnt)
+    let alpha = clockWise ? (azimuth + angle) : (azimuth - angle)
+    let dx = distance * Math.cos(alpha)
+    let dy = distance * Math.sin(alpha)
+    return ([endPnt[0] + dx, endPnt[1] + dy])
 }

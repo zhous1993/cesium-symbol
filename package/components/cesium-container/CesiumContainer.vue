@@ -48,7 +48,8 @@ let type = ref<string | null>(null); // 当前在绘画的类型，绘画完成�
             nowArrowObj.value = drawList.list[i];
             drawList.list[i].startModify();
             break;
-          } else if(pick.id.id == drawList.list[i].id) {
+          } 
+          // else if(pick.id.id == drawList.list[i].id) {
         //     nowArrowObj.value = drawList.list[i];
         //     if(viewerRef.value) {
         //       viewerRef.value.scene.screenSpaceCameraController.enableRotate = false;
@@ -78,7 +79,7 @@ let type = ref<string | null>(null); // 当前在绘画的类型，绘画完成�
 
         // }, Cesium.ScreenSpaceEventType.LEFT_UP)
         //     break
-          }
+          // }
         }
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -230,7 +231,7 @@ function selectType(icon:ICONTYPE) {
       drawList.list.push(pincerArrow)
     break;
     case 'AttackArrow':
-    const attackArrow = new StraightArrow(viewerRef.value)
+    const attackArrow:any = new StraightArrow(viewerRef.value as Cesium.Viewer)
       attackArrow.disable()
       attackArrow.startDraw();
       attackArrow.entity = attackArrow.arrowEntity
@@ -325,7 +326,7 @@ const handleDelete = (item: any) => {
   <div class="cesium-container">
     <div id="cesiumContainer" :class="{'cursor': isSelected}" ref="viewerDivRef" style="width: 100%; height: 100vh;"></div>
     <SelectType class="select-type" @selectType="selectType" :drawList="drawList.list" @toggle="handleToggle" @delete="handleDelete"></SelectType>
-    <Dialog ref="dialogRef" @drawPoint="drawPoint"></Dialog>
+    <Dialog ref="dialogRef" @drawPoint="drawPoint" :type="type"></Dialog>
     <div class="fotter">
       经度：{{ mouseInfo.lon }}&nbsp;&nbsp;
       纬度：{{ mouseInfo.lat }}&nbsp;&nbsp;
