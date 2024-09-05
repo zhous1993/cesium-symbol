@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import * as Cesium from 'cesium'
 import { getCatesian3FromPX } from '../units/thirdPart/utils'
-export const useDragEntity = (viewer: Cesium.Viewer, entity: Cesium.Entity) => {
+export const useDragEntity = (viewer: Cesium.Viewer, cb: () => void) => {
     let isDraging = ref(true)
     let handler: any = ref<any>()
     viewer.scene.screenSpaceCameraController.enableRotate = false;

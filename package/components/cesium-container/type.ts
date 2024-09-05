@@ -38,13 +38,13 @@ export interface Graphics {
 
     calcRotatePosition(angle: any, currentMousePosition: any): void
 }
-export type PointEditConfig = {
+export type PointConfig = {
     iconUrl: string
     size?: number
     opacity?: number
     remark?: string
 }
-export type PolygonEditConfig = {
+export type PolygonConfig = {
 
     borderWidth?: number
     borderColor?: string
@@ -53,7 +53,7 @@ export type PolygonEditConfig = {
     opacity?: number
     remark?: string
 }
-export type PolylineEditConfig = {
+export type PolylineConfig = {
     width?: number
     color?: string
     style?: 'solid' | 'dashed' | 'dotted' | 'dot-dash'
@@ -64,7 +64,8 @@ export type Entity = CesiumEntity & {
     type?: string
     attr?: string
     objId?: string
-    editConfig?: PointEditConfig | PolygonEditConfig | PolylineEditConfig
+    wz?: number // 点在positions里的index
+    editConfig?: PointConfig | PolygonConfig | PolylineConfig
 }
 
 export type LngLat = [number, number]

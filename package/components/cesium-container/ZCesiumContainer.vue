@@ -2,7 +2,7 @@
     <div class="cesium-container">
       <div id="cesiumContainer" :class="{'cursor': isSelected}" ref="viewerDivRef" style="width: 100%; height: 100vh;"></div>
       <SelectType class="select-type" @selectType="selectType" :drawList="drawList.list" @toggle="handleToggle" @delete="handleDelete"></SelectType>
-      <Dialog class="dialog" ref="dialogRef"  :type="type" :config="config" @update="handleEdit"></Dialog>
+      <Dialog class="dialog" ref="dialogRef"  :type="category" :config="config" @update="handleEdit"></Dialog>
       <div class="fotter">
         经度：{{ mouseInfo.lon }}&nbsp;&nbsp;
         纬度：{{ mouseInfo.lat }}&nbsp;&nbsp;
@@ -16,15 +16,17 @@ import * as Cesium from 'cesium'
 import SelectType from './SelectType.vue';
 import Dialog from './Dialog.vue';
 import viewerOption from './viewerOption';
-import { cartesianToLatlng, getCatesian3FromPX } from './units/units';
+import { cartesianToLatlng, enableCamera, getCatesian3FromPX } from './units/units';
 // 引入箭头
 import { StraightArrow } from './units/straightArrow'
 import { polygonEditConfig } from './polygon.config';
+import { PincerArrow } from './units/pincerArrow';
+import { LngLat } from './type';
 
 const viewerRef = ref()
 const dialogRef = ref()
 const handler = ref<Cesium.ScreenSpaceEventHandler>()
-const type = ref<'point' | 'polygon' | 'polyline'>('point')
+const category = ref<'point' | 'polygon' | 'polyline'>('point')
 const config:any = {}
 const isSelected = ref<boolean>(false)
 const mouseInfo = reactive({
@@ -37,18 +39,39 @@ const drawList = reactive({
 })
 const selectType = (item: any) => {
     isSelected.value = true
+    category.value = item.category
+    switch (item.category) {
+        case 'point':
+            
+            break;
+        case 'polyline':
+            break;
+        case 'polygon':
+            config.value = {...polygonEditConfig}
+            break
+        default:
+            break;
+    }
     handleDraw(item.type)
 }
 const handleDraw = (type: string) => {
  switch (type) {
     case 'StraightArrow':
         config.value = polygonEditConfig
-        const swallowtailArrow = new StraightArrow(viewerRef.value, config.value)
-        swallowtailArrow.disable()
-        swallowtailArrow.startDraw()
-        drawList.list.push({config: polygonEditConfig, obj: swallowtailArrow, id: swallowtailArrow.objId})
+        const straightArrow = new StraightArrow(viewerRef.value, config.value)
+        straightArrow.disable()
+        straightArrow.startDraw()
+        drawList.list.push({config: polygonEditConfig, obj: straightArrow, id: straightArrow.objId})
         break;
- 
+    case 'PincerArrow':
+        config.value = polygonEditConfig
+        const pincerArrow = new PincerArrow(viewerRef.value, config.value)
+        pincerArrow.disable()
+        pincerArrow.startDraw()
+        drawList.list.push({config: polygonEditConfig, obj: pincerArrow, id: pincerArrow.objId})
+        break;
+    case 'AttackArrow':
+      
     default:
         break;
  } 
@@ -59,9 +82,11 @@ const handleToggle = (id: string) => {
 const handleDelete = (id: string) => {
   
 }
+
 const handleEdit = (config:any) => {
    const index =  drawList.list.findIndex((item:any) => item.id == currentObj.value.id)
    drawList.list[index].config = config
+   drawList.list[index].obj.updateProps({config})
 }
 const initViewer = ()=> {
     viewerRef.value = new Cesium.Viewer('cesiumContainer', {
@@ -91,49 +116,51 @@ const bindEdit = ()=>{
     const handler = new Cesium.ScreenSpaceEventHandler(viewerRef.value?.scene.canvas);
     handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent)=> { //单机开始绘制
       var pick = viewerRef.value?.scene.pick(evt.position);
-      if (Cesium.defined(pick) && pick.id) {
-        for (var i = 0; i < drawList.list.length; i++) {
-          if (pick.id.objId&&pick.id.objId == drawList.list[i].id) {
-            currentObj.value = drawList.list[i];
-            drawList.list[i].obj.startModify();
-            config.value = drawList.list[i].config
+      if (Cesium.defined(pick) && pick.id && pick.id.objId) {
+        const index = drawList.list.findIndex((item:any) => item.id == pick.id.objId)
+        currentObj.value = drawList.list[index];
+            drawList.list[index].obj.startModify();
+            console.log("当前选中的id", drawList.list[index].obj)
+            config.value = drawList.list[index].config
+            dialogRef.value.assignmentConfig(config.value)
             dialogRef.value.showOpen()
-            break;
-          } 
-          // else if(pick.id.id == drawList.list[i].id) {
-        //     nowArrowObj.value = drawList.list[i];
-        //     if(viewerRef.value) {
-        //       viewerRef.value.scene.screenSpaceCameraController.enableRotate = false;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableZoom = false;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableTranslate = false;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableTilt = false;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableLook = false;
-        //     }
-        //     let isDraging = true
-        //     handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
-        //     let pickPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
-        //     if (isDraging && Cesium.defined(pickPosition)) {
-        //         nowArrowObj.value.entity.position = pickPosition
-        //     }
-        // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-        // handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-        //     isDraging = false
-        //     if(viewerRef.value) {
-        //       viewerRef.value.scene.screenSpaceCameraController.enableRotate = true;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableZoom = true;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableTranslate = true;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableTilt = true;
-        //       viewerRef.value.scene.screenSpaceCameraController.enableLook = true;
-        //     }
-        //     handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-        //     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP)
-
-        // }, Cesium.ScreenSpaceEventType.LEFT_UP)
-        //     break
-          // }
-        }
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    let isDraging = false
+    let startPosition: Cesium.Cartesian3 | null | undefined = null
+    handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+      var pick = viewerRef.value?.scene.pick(evt.position);
+      if (Cesium.defined(pick) && pick.id && pick.id.objId) {
+        const index = drawList.list.findIndex((item:any) => item.id == pick.id.objId)
+        currentObj.value = drawList.list[index];
+        console.log('drag')
+        isDraging = true
+        enableCamera(viewerRef.value,false)
+        startPosition =  getCatesian3FromPX(evt.position, viewerRef.value)
+        handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+          let endPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
+          if (isDraging && Cesium.defined(endPosition)) {
+          const oldPositions = currentObj.value.obj.getPositions()
+              
+              const dx = endPosition.x - startPosition!.x
+              const dy = endPosition.y - startPosition!.y
+              const newPositions = oldPositions.map((position: Cesium.Cartesian3) => {
+                return new Cesium.Cartesian3(position.x + dx, position.y + dy, position.z)
+              })
+              currentObj.value.obj.updateProps({positions: newPositions})
+              startPosition = endPosition.clone()
+          }
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+      handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+          isDraging = false
+          startPosition = null
+          enableCamera(viewerRef.value,true)
+          handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+          handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP)
+
+      }, Cesium.ScreenSpaceEventType.LEFT_UP)
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
   }
 onMounted(() => {
   initViewer()

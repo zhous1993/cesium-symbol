@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, reactive, defineExpose, defineEmits } from 'vue';
-import {  ElForm, ElFormItem, ElInput } from 'element-plus';
-import { ICONTYPE, PointEditConfig, PolygonEditConfig, PolylineEditConfig } from './type'
+import {  ElForm, ElFormItem, ElInput,ElColorPicker,ElSelect, ElOption } from 'element-plus';
+import {  PointConfig, PolygonConfig, PolylineConfig } from './type'
 import vMove from './hooks/mouseMove.directive'
 const props = defineProps<{
   type: 'point' | 'polygon' | 'polyline',
-  config: PointEditConfig | PolygonEditConfig | PolylineEditConfig
 }>()
 const emit = defineEmits(['update'])
-let formState:any = reactive<PointEditConfig | PolygonEditConfig | PolylineEditConfig>(props.config);
+let formState:any = reactive<PointConfig | PolygonConfig | PolylineConfig>({});
+console.log(formState)
 const open = ref<boolean>(false);
-function assignmentIcon(icon:ICONTYPE) {
-  formState = icon
+function assignmentConfig(icon:PointConfig | PolygonConfig | PolylineConfig) {
+  formState = reactive({...icon})
 }
 function showOpen() {
   open.value = true;
@@ -20,9 +20,12 @@ function handleOk() {
   open.value = false;
   emit('update',formState)
 }
+const handleValidate = () => {
+  emit('update', formState)
+}
 defineExpose({
   showOpen,
-  assignmentIcon
+  assignmentConfig
 })
 
 
@@ -37,52 +40,85 @@ defineExpose({
     <el-form
       :model="formState"
       name="basic"
-      :label-col="{ span: 4 }"
-      :wrapper-col="{ span: 18 }"
-      autocomplete="off"
+      
+      @validate="handleValidate"
     >
     <template v-if="type==='point'">
       <el-form-item
         label="比例[0~10]"
-        name="lon"
+        prop="size"
       >
-        <el-input type="number" :min="1" :max="10" v-model:value="formState.size" />
+        <el-input type="number" :min="1" :max="10" v-model="formState.size" />
       </el-form-item>
       
 
       <el-form-item
         label="透明度[0~255]"
-        name="opacity"
+        prop="opacity"
       >
-        <el-input type="number" :min="0" :max="255" v-model:value="formState.opacity" />
+        <el-input type="number" :min="0" :max="255" v-model="formState.opacity" />
       </el-form-item>
       <el-form-item
         label="说明"
-        name="remark"
+        prop="remark"
       >
-        <el-input v-model:value="formState.remark" />
+        <el-input v-model="formState.remark" />
       </el-form-item>
     </template>
     <template v-else-if="type=='polyline'">
       <el-form-item
         label="线宽[0~150]"
-        name="lon"
+        prop="width"
       >
-        <el-input type="number" :min="1" :max="150" v-model:value="formState.width" />
+        <el-input type="number" :min="1" :max="150" v-model="formState.width" />
       </el-form-item>
       
 
       <el-form-item
-        label="边框色[0~255]"
-        name="opacity"
+        label="边框色"
+        prop="color"
       >
-        <el-input type="number" :min="0" :max="255" v-model:value="formState.opacity" />
+        <el-color-picker v-model="formState.color" />
       </el-form-item>
       <el-form-item
         label="说明"
-        name="remark"
+        prop="remark"
       >
-        <el-input type="textarea" v-model:value="formState.remark" />
+        <el-input type="textarea" v-model="formState.remark" />
+      </el-form-item>
+    </template>
+    <template v-else-if="type==='polygon'">
+      <el-form-item
+        label="线宽[0~150]"
+        prop="borderWidth"
+      >
+        <el-input type="number" :min="1" :max="150" v-model="formState.borderWidth" />
+      </el-form-item>
+      
+
+      <el-form-item
+        label="边框色"
+        prop="borderColor"
+      >
+        <el-color-picker v-model="formState.borderColor" />
+      </el-form-item>
+      <el-form-item
+        label="填充色"
+        prop="fillColor"
+      >
+      <el-color-picker v-model="formState.fillColor" show-alpha />
+      </el-form-item>
+      <el-form-item label="边框样式" prop="borderStyle">
+        <el-select v-model="formState.borderStyle">
+          <el-option :value="'solid'" label="solid" ></el-option>
+          <el-option :value="'dashed'" label="dashed" ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="说明"
+        prop="remark"
+      >
+        <el-input type="textarea" v-model="formState.remark" autosize />
       </el-form-item>
     </template>
     

@@ -167,3 +167,38 @@ export const getThirdPoint = (startPnt: LngLat, endPnt: LngLat, angle: number, d
     let dy = distance * Math.sin(alpha)
     return ([endPnt[0] + dx, endPnt[1] + dy])
 }
+
+/**
+ * 二维数组去重
+ * @param points 
+ * @returns 
+ */
+export const removeDuplicatePoints = (points: LngLat[]): LngLat[] => {
+    const uniquePoints: LngLat[] = []
+    const seen = new Set()
+    points.forEach((subArray: LngLat) => {
+        const serialized = JSON.stringify(subArray)
+        if (!seen.has(serialized)) {
+            uniquePoints.push(subArray)
+            seen.add(serialized)
+        }
+    })
+    return uniquePoints
+}
+
+/**
+ * 计算中心点坐标
+ * @param points 
+ * @returns 
+ */
+export const Center = (points: LngLat[]): LngLat => {
+    let xSum = 0
+    let ySum = 0
+    points.forEach(point => {
+        xSum += point[0]
+        ySum += point[1]
+    })
+    const midX = xSum / points.length
+    const midY = ySum / points.length
+    return [midX, midY]
+}
