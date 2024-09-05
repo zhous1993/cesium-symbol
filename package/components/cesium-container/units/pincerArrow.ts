@@ -118,12 +118,12 @@ export class PincerArrow {
     showOnMap(positions: Cesium.Cartesian3[]) {
         const update = () => {
             //计算面
-            if (positions.length < 3) {
+            if (this.positions.length < 3) {
                 return undefined;
             }
             const lnglatArr = [];
-            for (let i = 0; i < positions.length; i++) {
-                const lnglat = cartesianToLatlng(positions[i], this.viewer);
+            for (let i = 0; i < this.positions.length; i++) {
+                const lnglat = cartesianToLatlng(this.positions[i], this.viewer);
                 lnglatArr.push(lnglat)
             }
             const res = xp.algorithm.doubleArrow(lnglatArr);
@@ -384,7 +384,7 @@ export class PincerArrow {
             point.position = new Cesium.ConstantPositionProperty(this.positions[point.wz as number - 1])
         })
     }
-    updateProps({ config, positions }: { config: PolygonConfig, positions: LngLat[] }) {
+    updateProps({ config, positions }: { config: PolygonConfig, positions: Cesium.Cartesian3[] }) {
         if (config) {
             const { borderColor, borderStyle, borderWidth, fillColor, remark } = config
             this.config = { borderColor: borderColor || polygonEditConfig.borderColor, borderStyle: borderStyle || polygonEditConfig.borderStyle, borderWidth: borderWidth || polygonEditConfig.borderWidth, fillColor: fillColor || polygonEditConfig.fillColor, remark: remark || polygonEditConfig.remark }
@@ -405,10 +405,12 @@ export class PincerArrow {
             }
         }
         if (positions) {
-            this.positions = positions.map((lnglat: LngLat) => Cesium.Cartesian3.fromArray([...lnglat, 0]))
+            this.positions = positions
             this.pointArr.forEach((point: Entity, index: number) => {
                 point.position = new Cesium.ConstantPositionProperty(this.positions[point.wz as number - 1])
             })
+            this.calcCenterPoint()
+            this.calcRotatePoint()
         }
     }
     toggleRotateLine() {

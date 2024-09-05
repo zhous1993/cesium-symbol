@@ -21,6 +21,7 @@ import { cartesianToLatlng, enableCamera, getCatesian3FromPX } from './units/uni
 import { StraightArrow } from './units/straightArrow'
 import { polygonEditConfig } from './polygon.config';
 import { PincerArrow } from './units/pincerArrow';
+import {SwallowtailArrow} from  './units/swallowtailArrow'
 import { LngLat } from './type';
 
 const viewerRef = ref()
@@ -39,6 +40,20 @@ const drawList = reactive({
 })
 const selectType = (item: any) => {
     isSelected.value = true
+    const length = drawList.list.length
+    if(length) {
+      const lastObj = drawList.list[length-1]
+      console.log(lastObj.obj);
+      
+      if(!lastObj.obj.mainEntity || (lastObj.obj.mainEntity &&  lastObj.obj.state !== -1)) {
+        if(lastObj.obj.state==2 ) {
+          lastObj.obj.disableHandler()
+        } else{
+          lastObj.obj.disable()
+          drawList.list.splice(length-1, 1)
+        }
+      }
+    }
     category.value = item.category
     switch (item.category) {
         case 'point':
@@ -70,8 +85,12 @@ const handleDraw = (type: string) => {
         pincerArrow.startDraw()
         drawList.list.push({config: polygonEditConfig, obj: pincerArrow, id: pincerArrow.objId})
         break;
-    case 'AttackArrow':
-      
+    case 'SwallowtailArrow':
+    config.value = polygonEditConfig
+        const swallowtailArrow = new SwallowtailArrow(viewerRef.value, config.value)
+        swallowtailArrow.disable()
+        swallowtailArrow.startDraw()
+        drawList.list.push({config: polygonEditConfig, obj: swallowtailArrow, id: swallowtailArrow.objId})
     default:
         break;
  } 
