@@ -107,6 +107,12 @@ function clickType(item: Number): void {
         category: 'polygon'
       },
       {
+        iconUrl: 'eMap-plot26.png',
+        text: '多箭头',
+        type: 'ThreeArrow',
+        category: 'polygon'
+      },
+      {
         iconUrl: 'eMap-plot27.png',
         text: '细直箭头',
         type: 'StraightLineArrow',

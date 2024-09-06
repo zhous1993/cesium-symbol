@@ -51,24 +51,28 @@ export function getCatesian3FromPX(px: Cesium.Cartesian2, viewer: Cesium.Viewer)
     var picks = viewer.scene.drillPick(px);
     // viewer.render();
     var cartesian;
-    var isOn3dtiles = true;
-    for (var i = 0; i < picks.length; i++) {
-        if ((picks[i] && picks[i].primitive) || picks[i] instanceof Cesium.Cesium3DTileFeature) { //模型上拾取
-            isOn3dtiles = true;
-        }
-    }
-    if (isOn3dtiles) {
-        cartesian = viewer.scene.pickPosition(px);
-    } else {
-        var ray = viewer.camera.getPickRay(px);
-        if (!ray) return null;
-        cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-    }
+    // var isOn3dtiles = true;
+    // for (var i = 0; i < picks.length; i++) {
+    //     if ((picks[i] && picks[i].primitive) || picks[i] instanceof Cesium.Cesium3DTileFeature) { //模型上拾取
+    //         isOn3dtiles = true;
+    //     }
+    // }
+    // if (isOn3dtiles) {
+    //     cartesian = viewer.scene.pickPosition(px);
+    // } else {
+    //     var ray = viewer.camera.getPickRay(px);
+    //     if (!ray) return null;
+    //     cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+    // }
+    var ray = viewer.camera.getPickRay(px);
+
+    cartesian = viewer.scene.globe.pick(ray!, viewer.scene);
     return cartesian;
 }
 
 export function cartesianToLatlng(cartesian: Cesium.Cartesian3, viewer: Cesium.Viewer): [number, number] {
-    const latlng = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+    // const latlng = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+    const latlng = Cesium.Cartographic.fromCartesian(cartesian);
     const lat = Cesium.Math.toDegrees(latlng.latitude);
     const lng = Cesium.Math.toDegrees(latlng.longitude);
     return [lng, lat];

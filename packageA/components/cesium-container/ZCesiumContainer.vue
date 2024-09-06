@@ -22,7 +22,7 @@ import { StraightArrow } from './units/straightArrow'
 import { polygonEditConfig } from './polygon.config';
 import { PincerArrow } from './units/pincerArrow';
 import {SwallowtailArrow} from  './units/swallowtailArrow'
-import { LngLat } from './type';
+import { ThreeArrow } from './units/threeArrow';
 
 const viewerRef = ref()
 const dialogRef = ref()
@@ -91,6 +91,14 @@ const handleDraw = (type: string) => {
         swallowtailArrow.disable()
         swallowtailArrow.startDraw()
         drawList.list.push({config: polygonEditConfig, obj: swallowtailArrow, id: swallowtailArrow.objId})
+        break;
+        case 'ThreeArrow':
+    config.value = polygonEditConfig
+          const threeArrow = new ThreeArrow(viewerRef.value, config.value)
+          threeArrow.disable()
+          threeArrow.startDraw()
+          drawList.list.push({config: polygonEditConfig, obj: threeArrow, id: threeArrow.objId})
+        break;
     default:
         break;
  } 
@@ -133,7 +141,8 @@ const initHandler = () => {
 }
 const bindEdit = ()=>{
     const handler = new Cesium.ScreenSpaceEventHandler(viewerRef.value?.scene.canvas);
-    handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent)=> { //单机开始绘制
+    //编辑模式
+    handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent)=> { 
       var pick = viewerRef.value?.scene.pick(evt.position);
       if (Cesium.defined(pick) && pick.id && pick.id.objId) {
         const index = drawList.list.findIndex((item:any) => item.id == pick.id.objId)
@@ -145,6 +154,8 @@ const bindEdit = ()=>{
             dialogRef.value.showOpen()
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    // 拖拽
     let isDraging = false
     let startPosition: Cesium.Cartesian3 | null | undefined = null
     handler.setInputAction((evt: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
@@ -160,11 +171,13 @@ const bindEdit = ()=>{
           let endPosition = getCatesian3FromPX(evt.endPosition, viewerRef.value)
           if (isDraging && Cesium.defined(endPosition)) {
           const oldPositions = currentObj.value.obj.getPositions()
-              
-              const dx = endPosition.x - startPosition!.x
-              const dy = endPosition.y - startPosition!.y
+              const endPos = cartesianToLatlng(endPosition, viewerRef.value)
+              const startPos = cartesianToLatlng(startPosition!, viewerRef.value)
+              const dx = endPos[0] - startPos[0]
+              const dy = endPos[1] - startPos[1]
               const newPositions = oldPositions.map((position: Cesium.Cartesian3) => {
-                return new Cesium.Cartesian3(position.x + dx, position.y + dy, position.z)
+                const positionCartographic = cartesianToLatlng(position, viewerRef.value)
+                return  Cesium.Cartesian3.fromDegrees(positionCartographic[0] + dx, positionCartographic[1] + dy, 0)
               })
               currentObj.value.obj.updateProps({positions: newPositions})
               startPosition = endPosition.clone()

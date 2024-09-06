@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import CesiumContainer from '../package/components/cesium-container/CesiumContainer.vue'
-import ZCesiumContainer from '../package/components/cesium-container/ZCesiumContainer.vue';
+// import CesiumContainer from '../package/components/cesium-container/CesiumContainer.vue'
+import ZCesiumContainer from '../package/ZCesiumContainer.vue';
 </script>
 
 <template>

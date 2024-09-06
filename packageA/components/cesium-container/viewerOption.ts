@@ -10,6 +10,7 @@ export default {
     // infoBox: false, //是否显示点击要素之后显示的信息
     homeButton: false, //是否显示Home按钮
     // imageryProvider:esri,//自定义图层
-    selectionIndicator: false
+    selectionIndicator: false,
+    terrainProvider: undefined
 
 }

@@ -1,19 +1,9 @@
-import { App } from 'vue';
-import components from './components/components';
+import * as Cesium from 'cesium'
+const ZCesium: any = {
 
-// 这部分，如果你有一些配置参数要导出就可以用这个
+}
+ZCesium.createGeometryFromData = (cesium: typeof Cesium,) => {
 
-// 所有组件
-export * from './components/components';
+}
 
-// 完整引入组件
-const install = (app: App) => {
-  components.forEach((component) => {
-    app.use(component as unknown as { install: () => any });
-  });
-};
-
-export default {
-  install,
-//   ...ButtonTypes
-};
+export default ZCesium
