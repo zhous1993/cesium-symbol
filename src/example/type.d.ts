@@ -1,6 +1,29 @@
-//@ts-ignore
 import * as Cesium from 'cesium'
 export type CesiumTypes = typeof Cesium
+// 定义图标
+export interface ICONTYPE {
+    iconUrl?: string;
+    text?: string;
+    lat?: string;
+    lon?: string;
+    remark?: string;
+    id?: string;
+    type?: string;
+    entity?: Entity;
+    size?: number;
+    category: 'polygon' | 'point' | 'polyline'
+}
+export type Point = {
+    lat: string,
+    lon: string,
+    height?: string,
+    id: symbol,
+    fillColor?: string,
+    type?: string,
+    remark?: string,
+    iconUrl?: string,
+    text?: string
+}
 
 export type PointStyle = {
     iconUrl?: string
@@ -51,8 +74,3 @@ export type EventListener = (eventData?: any) => void;
 export type State = 'drawing' | 'edit' | 'static'
 export type Category = 'polygon' | 'point' | 'polyline'
 export type GeometryStyle = PointStyle | PolygonStyle | PolylineStyle
-export type CreateByDataOptions = {
-    style?: GeometryStyle
-    type: string
-    points: Cesium.Cartesian3[]
-}

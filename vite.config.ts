@@ -8,7 +8,6 @@ import ElementPlus from 'unplugin-element-plus/vite'
 export default defineConfig({
   plugins: [
     vue(),
-    cesium(),
     dts({
       insertTypesEntry: true,
       cleanVueFileName: true,
@@ -27,17 +26,12 @@ export default defineConfig({
     outDir: 'lib',
     lib: {
       entry: resolve(__dirname, 'package/index.ts'),
-      name: 'CesiumMyLib',
-      fileName: (format) => `crane.${format}.js`
+      name: 'ZCesium',
+      fileName: (format) => `ZCesium.${format}.js`
     },
     rollupOptions: {
-      external: ['vue', 'cesium'],
-      output: {
-        globals: {
-          vue: 'Vue',
-          cesium: 'Cesium'
-        }
-      }
+      external: ['cesium'],
+
     }
   }
 })
